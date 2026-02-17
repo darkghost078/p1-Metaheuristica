@@ -17,15 +17,30 @@ def estimate_coef(x, y):
 
 
 def estimate_all_coef(temp, points):
-    v = []
+    coef = []
     start = 0
+    points.append(temp.size())
 
     for point in points:
-        b_0, b_1 = estimate_coef(range(start, point), v[start:point])
-        v.append((b_0, b_1))
+        b_0, b_1 = estimate_coef(range(start, point), coef[start:point])
+        coef.append((b_0, b_1))
         start = point
 
-    b_0, b_1 = estimate_coef(range(start, temp.size()), v[start:])
-    v.append((b_0, b_1))
+    return coef
 
-    return v
+
+def estimate_point(coef, i):
+    return i * coef[0] + coef[1]
+
+
+def estimate_all_points(coef, points, temp_size):
+    estimated = []
+    start = 0
+    points.append(temp_size)
+
+    for point, pos in points:
+        for i in range(start, point):
+            estimated.append(estimate_point(coef[pos - 1], i))
+        start = point
+
+    return estimated
