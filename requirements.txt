@@ -1,1 +1,4 @@
+random
 scikit-learn
+numpy
+matplotlib
