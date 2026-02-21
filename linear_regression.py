@@ -6,17 +6,23 @@ def estimate_coef(x, y):
     y = np.array(y)
     n = np.size(x)
 
+    if n == 0:
+        return (0.0, 0.0)
+
     m_x = np.mean(x)
     m_y = np.mean(y)
 
     SS_xy = np.sum(y * x) - n * m_y * m_x
     SS_xx = np.sum(x * x) - n * m_x * m_x
 
-    b_0 = SS_xy / SS_xx
-    b_1 = m_y - b_0 * m_x
+    if abs(SS_xx) < 1e-8:
+        b_0 = 0.0
+        b_1 = m_y
+    else:
+        b_0 = SS_xy / SS_xx
+        b_1 = m_y - b_0 * m_x
 
-    return (b_0.item(), b_1.item())
-
+    return (float(b_0), float(b_1))
 
 def estimate_all_coef(temp, points):
     coef = []
