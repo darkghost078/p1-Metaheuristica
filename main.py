@@ -61,10 +61,14 @@ def main():
             paso_print = max(1, num_iters // 10)
 
             # Escribir los resultados detallados en el CSV
+            mejor_rmse_hasta_ahora = float('inf')
             for det in detalles:
                 writer.writerow([nombre_serie, det['iteracion'], str(det['puntos_corte']), f"{det['rmse']:.6f}", f"{det['tiempo']:.6f}"])
+                if det['rmse'] < mejor_rmse_hasta_ahora:
+                    mejor_rmse_hasta_ahora = det['rmse']
                 if det['iteracion'] % paso_print == 0:
-                    print(f"  Iteración {det['iteracion']:5d}/{num_iters} - Mejor RMSE: {mejores_res['rmse']:.6f}")
+                    print(f"  Iteración {det['iteracion']:5d}/{num_iters} - Mejor RMSE: {mejor_rmse_hasta_ahora:.6f}")
+            
             
             # Resumen de esta serie
             print(f"\n RESULTADOS {nombre_serie} (Búsqueda Aleatoria):")
@@ -72,8 +76,6 @@ def main():
             print(f" RMSE promedio: {rmse_prom:.6f}")
             print(f" Tiempo promedio por iteración: {tiempo_prom:.6f} s")
             
-            # --- AQUÍ PODREMOS AÑADIR EL HILL CLIMBING LUEGO ---
-            # mejores_res_hc, ... = ejecutar_hill_climbing(serie, k, num_iteraciones=num_iters)
             
             # Comparar y actualizar el mejor global
             if nombre_serie in mejores_previos:

@@ -33,13 +33,10 @@ def generar_analisis_estadistico(df):
 
 def generar_grafica_convergencia(df):
     plt.figure(figsize=(10, 6))
-    
+
     for serie in df['serie'].unique():
         datos_serie = df[df['serie'] == serie].sort_values('iteracion')
-        
-        # Calculamos el mínimo acumulado para ver la evolución del mejor hallazgo
         mejores_hasta_ahora = datos_serie['rmse_medio'].cummin()
-        
         plt.plot(datos_serie['iteracion'], mejores_hasta_ahora, label=f' {serie}', linewidth=2)
 
     plt.title('Curva de Convergencia: Evolución del Mejor RMSE', fontsize=14)
@@ -47,8 +44,8 @@ def generar_grafica_convergencia(df):
     plt.ylabel('RMSE (Menor es mejor)', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.legend()
-    
-    plt.savefig('convergencia.png')
+
+    plt.savefig('convergencia_ba.png')
     print("Imagen 'convergencia_ba.png' generada.")
 
 if __name__ == "__main__":
@@ -59,4 +56,3 @@ if __name__ == "__main__":
         generar_grafica_convergencia(data)
     except FileNotFoundError:
         print(f"Error: No se encuentra {archivo}. Ejecuta primero el main.py")
-
