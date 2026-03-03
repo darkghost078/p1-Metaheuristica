@@ -1,6 +1,6 @@
 import random
 
-def puntuakAusazko(longitud_serie, n_cortes):
+def randomPoints(longitud_serie, n_cortes):
     b = []
     while n_cortes > 0:
         r = random.randint(1, longitud_serie - 1)
