@@ -1,6 +1,10 @@
+import sys
+sys.path.append("..")
+
 from lectura_datos import read_serie
 from busqueda_aleatoria import randomSearch
 import matplotlib.pyplot as plt
+from linear_regression import estimate_all_points
 
 def main():
     start = int(input("Introduzca el numero de individuos iniciales: "))
@@ -11,7 +15,7 @@ def main():
         print("Valores no validos")
         return 0
     
-    files = ['TS1', 'TS2', 'TS3', 'TS4']
+    files = ['../TS1', '../TS2', '../TS3', '../TS4']
     k_values = [9, 10, 20, 50]
     
     series = []
@@ -28,23 +32,41 @@ def main():
     series_iters=[]
     series_bests=[]
     series_times=[]
-    
+
     for TS in range(len(series)):
+        times=[]
         iters=[]
         bests=[]
         current_serie=series[TS]
         current_k=k_values[TS]
         for i in range(start,end,increment):
-            best, times, rmses= randomSearch(current_serie,current_k,i)
-            #Grafica
+            if i==start:
+                best, time, _= randomSearch(current_serie,current_k,i)
+            else:
+                best, time, _= randomSearch(current_serie,current_k,i,best)
+
+
             iters.append(i)
-            bests.append(best)
+            bests.append(best.copy())
+            times.append(time)
 
         series_iters.append(iters)
         series_bests.append(bests)
         series_times.append(times)
 
 
+    #Grafica Iters vs RMSE
+    for TS in range(len(series_times)):
+        rmses = [element["rmse"] for element in series_bests[TS]]
+        plt.plot(series_iters[TS],rmses,marker ='o')
+        plt.title(f"RS {files[TS][3:]}")
+        plt.xlabel("Tiempo")
+        plt.ylabel("Mejor RMSE")
+        plt.grid(True)
+        plt.savefig(f"{files[TS][3:]}_ItersvsRMSE.png", dpi=300, bbox_inches='tight')
+        plt.show()
+        input()
+        plt.close()
 
 
 if __name__ == "__main__":

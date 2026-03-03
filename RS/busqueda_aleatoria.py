@@ -20,24 +20,26 @@ def mean_rmse(serie, points):
     return rmse_acc / len(pts)
 
 
-def randomSearch(serie, k, n_iter):
-    best = {'rmse': float('-inf'), 'points': None}
-    times = []
+def randomSearch(serie, k, n_iter, prev_best=None):
+    if prev_best == None:
+        best={'rmse': float('inf'), 'points': None}
+    else:
+        best = prev_best
     startTime = time.time()
     rmses=[]
-
+    print(n_iter)
     for i in range(n_iter):
         points = randomPoints(len(serie), k)
 
         rmse = mean_rmse(serie, points)
-        endTime = time.time()
-
-        times.append(endTime - startTime)
-        
-        if rmse > best['rmse']:
+            
+        if rmse < best['rmse']:
             best['rmse'] = rmse
             best['points'] = points
 
         rmses.append(best)
 
-    return best, times, rmses
+    endTime = time.time()
+    i_time=endTime-startTime
+
+    return best, i_time, rmses
