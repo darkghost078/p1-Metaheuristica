@@ -1,6 +1,5 @@
 from linear_regression import estimate_all_coef, estimate_all_points
 from RMSE import RMSE
-from puntosRandom import puntuakAusazko 
 
 def search_neighbour(serie, n):
     v = []
@@ -33,9 +32,7 @@ def search_neighbour(serie, n):
 
     return p
 
-def hc(serie, k):
-    solucion = puntuakAusazko(len(serie),k)
-    print(solucion)
+def hc(serie, solucion):
     coeficientes = estimate_all_coef(serie, solucion.copy())
     puntos_estimados = estimate_all_points(coeficientes, solucion.copy(), len(serie))
     rmse = RMSE(serie, puntos_estimados)
@@ -54,11 +51,5 @@ def hc(serie, k):
                 solucion = vect
                 rmse = current
                 flag = True
-        print(rmse)
 
     return solucion
-
-
-if __name__ == "__main__":
-    serie = [1,3,5,7,10,9,8,7]
-    hc(serie,1)
