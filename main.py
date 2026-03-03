@@ -10,21 +10,19 @@ def main():
     
     # 1. Pedir al usuario el número de iteraciones
     while True:
-        try:
-            num_iters = int(input("¿Cuántas iteraciones quieres ejecutar por algoritmo? (ej. 100, 1000): "))
-            if num_iters > 0:
-                break
-            print("Por favor, introduce un número mayor que 0.")
-        except ValueError:
-            print("Por favor, introduce un número entero válido.")
+        num_iters = int(input("¿Cuántas iteraciones quieres ejecutar por algoritmo? (ej. 100, 1000): "))
+        if num_iters > 0:
+            break
+        print("Por favor, introduce un número mayor que 0.")
 
-    archivos = ['TS1', 'TS2', 'TS3', 'TS4']
-    k_por_serie = [9, 10, 20, 50] # Valores de k exigidos en el enunciado.
+
+    files = ['TS1', 'TS2', 'TS3', 'TS4']
+    k_values = [9, 10, 20, 50] # Valores de k exigidos en el enunciado.
     
-    series_temporales = []
-    for archivo in archivos:
-        serie = leer_serie(archivo)
-        series_temporales.append(serie)
+    series = []
+    for file in files:
+        serie = leer_serie(file)
+        series.append(serie)
     
     print("\n" + "=" * 20)
     print("EJECUCIÓN DE EXPERIMENTOS")
