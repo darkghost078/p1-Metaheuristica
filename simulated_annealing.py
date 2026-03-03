@@ -42,7 +42,7 @@ def simulated_annealing(T0, alpha, L, Tf, serie, k):
     best = sol
     iter = 1
     while T >= Tf:
-        for count in range(L):
+        for _ in range(L):
             srand = random_neighbour(sol, len(serie))
 
             coeficientes = estimate_all_coef(serie, srand.copy())

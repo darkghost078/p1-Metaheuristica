@@ -1,7 +1,6 @@
-import csv
-import os
-from lectura_datos import leer_serie
-from busqueda_aleatoria import ejecutar_busqueda_aleatoria
+from lectura_datos import read_serie
+from busqueda_aleatoria import randomSearch
+import matplotlib.pyplot as plt
 
 def main():
     start = int(input("Introduzca el numero de individuos iniciales: "))
@@ -17,21 +16,37 @@ def main():
     
     series = []
     for file in files:
-        serie = leer_serie(file)
+        serie = read_serie(file)
         series.append(serie)
     
     print("\n" + "=" * 20)
     print("EJECUCIÓN DE EXPERIMENTOS")
     print("=" * 20)
 
-    rmses=[]
-    iters=[]
 
-    for TS in len(series):
+    #Listas para guardar iters y best de cada serie
+    series_iters=[]
+    series_bests=[]
+    series_times=[]
+    
+    for TS in range(len(series)):
+        iters=[]
+        bests=[]
         current_serie=series[TS]
         current_k=k_values[TS]
         for i in range(start,end,increment):
-            
+            best, times, rmses= randomSearch(current_serie,current_k,i)
+            #Grafica
+            iters.append(i)
+            bests.append(best)
+
+        series_iters.append(iters)
+        series_bests.append(bests)
+        series_times.append(times)
+
+
+
 
 if __name__ == "__main__":
     main()
+    print("No me he cagado encima")
