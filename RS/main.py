@@ -4,7 +4,7 @@ sys.path.append("..")
 from lectura_datos import read_serie
 from busqueda_aleatoria import randomSearch
 import matplotlib.pyplot as plt
-from linear_regression import estimate_all_points
+from linear_regression import estimate_all_points, estimate_all_coef
 
 def main():
     start = int(input("Introduzca el numero de individuos iniciales: "))
@@ -55,6 +55,7 @@ def main():
         series_times.append(times)
 
 
+#Graficas
     #Grafica Iters vs RMSE
     for TS in range(len(series_times)):
         rmses = [element["rmse"] for element in series_bests[TS]]
@@ -65,8 +66,30 @@ def main():
         plt.grid(True)
         plt.savefig(f"{files[TS][3:]}_ItersvsRMSE.png", dpi=300, bbox_inches='tight')
         plt.show()
-        input()
         plt.close()
+
+    #Grafica de puntos resultado
+    for TS in range(len(series_times)):
+        plt.title(f"RS {files[TS][3:]}")
+        #Linea real
+        plt.plot(series[TS], color='blue', linewidth=1, label="Datos reales")
+
+        #Lineas verticales
+        best=series_bests[TS][len(series_bests[TS])-1]['points']
+        for i in range(len(best)):
+            plt.axvline(x=best[i],linestyle='--',linewidth=1)
+
+        #Linea estimada
+        coef = estimate_all_coef(series[TS],best)
+        plt.plot(estimate_all_points(coef,best,len(series[TS])), color='red', linewidth=1, label="Datos estimados")
+
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(f"{files[TS][3:]}_sol.png", dpi=300, bbox_inches='tight')
+        plt.show()
+        plt.close()
+
+        
 
 
 if __name__ == "__main__":
