@@ -5,6 +5,8 @@ from lectura_datos import read_serie
 from busqueda_aleatoria import randomSearch
 import matplotlib.pyplot as plt
 from linear_regression import estimate_all_points, estimate_all_coef
+import numpy as np
+
 
 def mean(serie):
     means = []
@@ -22,7 +24,27 @@ def mean(serie):
     
     return means
 
+def std(serie,means):
+    stds = []
+    for TS in range(len(serie[0])):
+        std_s=[]
+        for i in range(len(serie)):
+            for j in range(len(serie[0][TS])):
+                diff=serie[i][TS][j]['rmse']-means[TS][j]
+                diff**=2
+                if i == 0:
+                    std_s.append(diff)
+                else:
+                    std_s[j] += diff
 
+        for i in range(len(std_s)):
+            std_s[i]=pow(std_s[i],2)
+            std_s[i] /= len(serie)
+            std_s[i]=np.sqrt(std_s[i])
+
+        stds.append(std_s)
+    
+    return stds
 
 def main():
     start = int(input("Introduzca el numero de individuos iniciales: "))
@@ -85,10 +107,26 @@ def main():
 #Graficas
 
     mean_series=mean(mean_bests)
+    std_series=std(mean_bests,mean_series)
+
+
+    std_mean_neg=[]
+    std_mean_pos=[]
+    for TS in range(len (series_times)):
+        std_neg=[]
+        std_pos=[]
+        for i in range(len(mean_series[TS])):
+            std_pos.append(mean_series[TS][i]+std_series[TS][i])
+            std_neg.append(mean_series[TS][i]-std_series[TS][i])
+        std_mean_neg.append(std_neg)
+        std_mean_pos.append(std_pos)
 
     for TS in range(len(series_times)):
         plt.title(f"Mean {files[TS][3:]}")
-        plt.plot(series_iters[TS], mean_series[TS], color='blue', linewidth=1, label="medias")
+        plt.plot(series_iters[TS], mean_series[TS], color='blue', linewidth=1, label="media")
+        plt.plot(series_iters[TS],std_mean_neg[TS], color='red', linewidth=1,linestyle='--', label="desv sup")
+        plt.plot(series_iters[TS],std_mean_pos[TS], color='red', linewidth=1,linestyle='--', label="desv inf")
+        plt.legend()
         plt.savefig(f"{files[TS][3:]}_mean.png", dpi=300, bbox_inches='tight')
         plt.close()
 
