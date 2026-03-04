@@ -4,6 +4,18 @@ from puntosRandom import puntuakAusazko
 from linear_regression import estimate_all_coef, estimate_all_points
 from RMSE import RMSE
 
+# 1. Lineal: T = T0 - i * beta 
+# (Aquí 'param' actúa como beta)
+enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
+
+# 2. Geométrica o exponencial: T = alpha * T 
+# (Aquí 'param' actúa como alpha)
+enfriamiento_geometrico = lambda T, T0, i, param: T * param
+
+# 3. Logarítmica: T = T0 / (1 + log(i))
+enfriamiento_boltzmann = lambda T, T0, i, param: T0 / (1 + math.log(i))
+
+
 def random_neighbour(serie, n):
     v = []
 
@@ -35,7 +47,7 @@ def random_neighbour(serie, n):
 
     return random.choice(p)
 
-def simulated_annealing(T0, alpha, L, Tf, serie, k):
+def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
     T = T0
     sol = puntuakAusazko(len(serie), k)
 
@@ -65,12 +77,28 @@ def simulated_annealing(T0, alpha, L, Tf, serie, k):
                 if rmse_sol < rmse_best:
                     best = sol
 
-            T = alpha(T, iter)
+            T = funcion_enfriamiento(T, T0, iter, p)
             iter+=1
 
     return best
 
+# if __name__ == "__main__":
+#     serie = [1,3,5,7,10,9,8,7]
+#     alpha = lambda T, i: T-i
+#     print(simulated_annealing(30,alpha, 100 ,10, serie,1))
+
 if __name__ == "__main__":
     serie = [1,3,5,7,10,9,8,7]
-    alpha = lambda T, i: T-i
-    print(simulated_annealing(30,alpha, 100 ,10, serie,1))
+    
+    # Ejemplo usando enfriamiento Geométrico con alpha = 0.95
+    mejor_solucion = simulated_annealing(
+        T0=100, 
+        funcion_enfriamiento=enfriamiento_boltzmann, 
+        p=0.95,  # Este es el valor de alpha
+        L=10, 
+        Tf=0.1, 
+        serie=serie, 
+        k=2 # Queremos 2 segmentos, generará 1 punto de corte
+    )
+    
+    print(mejor_solucion)
