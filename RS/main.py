@@ -41,9 +41,9 @@ def main():
         current_k=k_values[TS]
         for i in range(start,end,increment):
             if i==start:
-                best, time, _= randomSearch(current_serie,current_k,i)
+                best, time, _= randomSearch(current_serie,current_k,increment)
             else:
-                best, time, _= randomSearch(current_serie,current_k,i,best)
+                best, time, _= randomSearch(current_serie,current_k,increment,best)
 
 
             iters.append(i)
