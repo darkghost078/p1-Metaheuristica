@@ -32,3 +32,18 @@ Para instalar las dependencias:
 ```bash
 pip install -r requirements.txt
 ```
+
+
+# Ejecucion
+
+Para ejecutarlo nos metemos en la carpeta del algoritmo que queremos ejecutar y ejecutamos el main
+
+Por ejemplo para random search:
+
+```bash
+cd RS
+```
+
+```bash
+python3 main.py
+```
