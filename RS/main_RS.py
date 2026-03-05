@@ -156,4 +156,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("No me he cagado encima")
+    print("Ha terminado")
