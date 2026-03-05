@@ -1,6 +1,9 @@
-from linear_regression import estimate_all_coef, estimate_all_points
-from RMSE import RMSE
-from puntosRandom import puntuakAusazko 
+import sys
+sys.path.append("..")
+
+import time
+from RS.busqueda_aleatoria import mean_rmse 
+from puntosRandom import randomPoints 
 
 def search_neighbour(serie, n):
     v = []
@@ -34,11 +37,9 @@ def search_neighbour(serie, n):
     return p
 
 def hc(serie, k):
-    solucion = puntuakAusazko(len(serie),k)
-
-    coeficientes = estimate_all_coef(serie, solucion.copy())
-    puntos_estimados = estimate_all_points(coeficientes, solucion.copy(), len(serie))
-    rmse = RMSE(serie, puntos_estimados)
+    startTime = time.time()
+    solucion = randomPoints(len(serie),k)
+    rmse = mean_rmse(serie, solucion)
     flag = True
 
     while(flag):
@@ -46,16 +47,19 @@ def hc(serie, k):
         v = search_neighbour(solucion, len(serie))
 
         for vect in v:
-            coeficientes = estimate_all_coef(serie, vect.copy())
-            puntos_estimados = estimate_all_points(coeficientes, vect.copy(), len(serie))
-            current = RMSE(serie, puntos_estimados)
+            current = mean_rmse(serie, vect)
 
             if current < rmse:
                 solucion = vect
                 rmse = current
                 flag = True
+                break
 
-    return solucion
+    endTime = time.time()
+    t = endTime - startTime
+    
+    # Devolvemos el formato estándar
+    return {'rmse': rmse, 'points': solucion}, t
 
 
 if __name__ == "__main__":

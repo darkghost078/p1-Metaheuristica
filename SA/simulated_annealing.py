@@ -1,18 +1,16 @@
+import sys
+sys.path.append("..")
+
 import math
 import random
-from puntosRandom import puntuakAusazko
+import time
+
+from puntosRandom import randomPoints
 from linear_regression import estimate_all_coef, estimate_all_points
-from RMSE import RMSE
+from RS.busqueda_aleatoria import mean_rmse
 
-# 1. Lineal: T = T0 - i * beta 
-# (Aquí 'param' actúa como beta)
 enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
-
-# 2. Geométrica o exponencial: T = alpha * T 
-# (Aquí 'param' actúa como alpha)
 enfriamiento_geometrico = lambda T, T0, i, param: T * param
-
-# 3. Logarítmica: T = T0 / (1 + log(i))
 enfriamiento_boltzmann = lambda T, T0, i, param: T0 / (1 + math.log(i))
 
 
@@ -48,39 +46,39 @@ def random_neighbour(serie, n):
     return random.choice(p)
 
 def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
-    T = T0
-    sol = puntuakAusazko(len(serie), k)
+    startTime = time.time()
 
-    best = sol
+    T = T0
+    sol = randomPoints(len(serie), k)
+
+    rmse_sol = mean_rmse(serie, sol)
+
+    best = sol.copy()
+    rmse_best = rmse_sol
     iter = 1
     while T >= Tf:
         for _ in range(L):
             srand = random_neighbour(sol, len(serie))
 
-            coeficientes = estimate_all_coef(serie, srand.copy())
-            puntos_estimados = estimate_all_points(coeficientes, srand.copy(), len(serie))
-            rmse_srand = RMSE(serie, puntos_estimados)
-
-            coeficientes = estimate_all_coef(serie, sol.copy())
-            puntos_estimados = estimate_all_points(coeficientes, sol.copy(), len(serie))
-            rmse_sol = RMSE(serie, puntos_estimados)
+            rmse_srand = mean_rmse(serie, srand)
 
             delta = rmse_srand - rmse_sol
 
-            if random.uniform(0, 1) < math.exp(-delta / T) or delta < 0 :
+            if delta < 0 or random.uniform(0, 1) < math.exp(-delta / max(T, 1e-8)):
                 sol = srand
 
-                coeficientes = estimate_all_coef(serie, best.copy())
-                puntos_estimados = estimate_all_points(coeficientes, best.copy(), len(serie))
-                rmse_best = RMSE(serie, puntos_estimados)
+                rmse_sol = rmse_srand
     
                 if rmse_sol < rmse_best:
-                    best = sol
+                    best = sol.copy()
+                    rmse_best = rmse_sol
 
             T = funcion_enfriamiento(T, T0, iter, p)
             iter+=1
-
-    return best
+    
+    endTime = time.time()
+    t = endTime - startTime
+    return {'rmse': rmse_best, 'points': best}, t
 
 # if __name__ == "__main__":
 #     serie = [1,3,5,7,10,9,8,7]
