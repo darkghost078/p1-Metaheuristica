@@ -10,6 +10,7 @@ import time
 # 1. REGRESIÓN LINEAL POR SEGMENTOS
 # ============================================================
 
+
 def estimate_segment_coef(x, y):
     x = np.array(x).reshape(-1, 1)
     y = np.array(y)
@@ -49,6 +50,7 @@ def estimate_all_points(coef, points, n):
 # 2. PUNTOS ALEATORIOS
 # ============================================================
 
+
 def randomPoints(longitud_serie, n_cortes):
     b = []
     while n_cortes > 0:
@@ -63,6 +65,7 @@ def randomPoints(longitud_serie, n_cortes):
 # ============================================================
 # 3. RMSE
 # ============================================================
+
 
 def RMSE(y_real, y_pred):
     mse = mean_squared_error(y_real, y_pred)
@@ -88,6 +91,7 @@ def mean_rmse(serie, points):
 # 4. GENERACIÓN DE VECINOS
 # ============================================================
 
+
 def search_neighbour(serie, n):
     """
     Genera todos los vecinos válidos moviendo un punto ±1.
@@ -96,21 +100,19 @@ def search_neighbour(serie, n):
     vecinos = []
 
     for i, point in enumerate(serie):
-
-        # Mover +1
+        # Mover + 1% del tamaño de la serie
         v1 = serie.copy()
-        v1[i] = point + 1
+        v1[i] = point + int(n / 100)
         vecinos.append(v1)
 
-        # Mover -1
+        # Mover - 1% del tamaño de la serie
         v2 = serie.copy()
-        v2[i] = point - 1
+        v2[i] = point - int(n / 100)
         vecinos.append(v2)
 
     validos = []
 
     for vect in vecinos:
-
         if vect[0] <= 0:
             continue
         if vect[-1] >= n:
@@ -128,6 +130,7 @@ def search_neighbour(serie, n):
 # ============================================================
 # 5. HILL CLIMBING
 # ============================================================
+
 
 def hc(serie, k, max_iters=200):
     startTime = time.time()
@@ -157,12 +160,13 @@ def hc(serie, k, max_iters=200):
         rmse = mejor_rmse
 
     endTime = time.time()
-    return {'rmse': rmse, 'points': solucion}, endTime - startTime
+    return {"rmse": rmse, "points": solucion}, endTime - startTime
 
 
 # ============================================================
 # 6. EJECUCIÓN DEL EXPERIMENTO
 # ============================================================
+
 
 def ejecutar_HC(series, k_values, repeticiones=20):
     resultados = []
@@ -171,17 +175,15 @@ def ejecutar_HC(series, k_values, repeticiones=20):
 
     for idx, serie in enumerate(series):
         k = k_values[idx]
-        print(f"\nProcesando TS{idx+1} (k={k})...")
+        print(f"\nProcesando TS{idx + 1} (k={k})...")
 
         rep_result = []
         for rep in range(repeticiones):
             sol, tiempo = hc(serie, k)
-            rep_result.append({
-                "rmse": sol["rmse"],
-                "points": sol["points"],
-                "tiempo": tiempo
-            })
-            print(f"Repetición {rep+1}/{repeticiones} completada")
+            rep_result.append(
+                {"rmse": sol["rmse"], "points": sol["points"], "tiempo": tiempo}
+            )
+            print(f"Repetición {rep + 1}/{repeticiones} completada")
 
         resultados.append(rep_result)
 
@@ -193,6 +195,7 @@ def ejecutar_HC(series, k_values, repeticiones=20):
 # 7. GRÁFICAS
 # ============================================================
 
+
 def plot_HC_RMSE(series, resultados):
     for idx in range(len(series)):
         rmse_vals = [rep["rmse"] for rep in resultados[idx]]
@@ -201,11 +204,20 @@ def plot_HC_RMSE(series, resultados):
         mean_rmse_val = np.mean(rmse_vals)
         std_rmse_val = np.std(rmse_vals)
 
-        plt.figure(figsize=(10,5))
-        plt.title(f"Evolución del RMSE - Hill Climbing (TS{idx+1})")
+        plt.figure(figsize=(10, 5))
+        plt.title(f"Evolución del RMSE - Hill Climbing (TS{idx + 1})")
 
-        plt.plot(ejecuciones, rmse_vals, marker="o", color="blue", label="RMSE por ejecución")
-        plt.hlines(mean_rmse_val, 1, len(rmse_vals), color="green", linewidth=2, label="Media RMSE")
+        plt.plot(
+            ejecuciones, rmse_vals, marker="o", color="blue", label="RMSE por ejecución"
+        )
+        plt.hlines(
+            mean_rmse_val,
+            1,
+            len(rmse_vals),
+            color="green",
+            linewidth=2,
+            label="Media RMSE",
+        )
 
         plt.fill_between(
             ejecuciones,
@@ -213,7 +225,7 @@ def plot_HC_RMSE(series, resultados):
             mean_rmse_val + std_rmse_val,
             color="green",
             alpha=0.2,
-            label="±1 desviación"
+            label="±1 desviación",
         )
 
         plt.xlabel("Ejecución")
@@ -231,17 +243,17 @@ def plot_final_HC(series, resultados, k_values):
         coef = estimate_all_coef(serie, points)
         estimada = estimate_all_points(coef, points, len(serie))
 
-        plt.figure(figsize=(12,5))
+        plt.figure(figsize=(12, 5))
         plt.plot(serie, label="Serie real", color="blue")
         plt.plot(estimada, label="Serie estimada", color="red")
 
         for p in points:
             plt.axvline(x=p, linestyle="--", color="black")
 
-        plt.title(f"Solución final HC - TS{idx+1} (k={k_values[idx]})")
+        plt.title(f"Solución final HC - TS{idx + 1} (k={k_values[idx]})")
         plt.xlabel("Tiempo")
         plt.ylabel("Valor")
         plt.legend()
         plt.grid(True)
-        plt.savefig(f"TS{idx+1}_sol.png", dpi=150)
+        plt.savefig(f"TS{idx + 1}_sol.png", dpi=150)
         plt.show()

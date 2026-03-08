@@ -12,6 +12,7 @@ import time
 # 1. CARGA DE SERIES
 # ============================================================
 
+
 def read_serie(path):
     with open(path, "r") as f:
         contenido = f.read().replace("[", "").replace("]", "").split()
@@ -21,6 +22,7 @@ def read_serie(path):
 # ============================================================
 # 2. REGRESIÓN LINEAL POR SEGMENTOS
 # ============================================================
+
 
 def estimate_segment_coef(x, y):
     x = np.array(x).reshape(-1, 1)
@@ -61,6 +63,7 @@ def estimate_all_points(coef, points, n):
 # 3. PUNTOS ALEATORIOS
 # ============================================================
 
+
 def randomPoints(longitud_serie, n_cortes):
     b = []
     while n_cortes > 0:
@@ -75,6 +78,7 @@ def randomPoints(longitud_serie, n_cortes):
 # ============================================================
 # 4. RMSE
 # ============================================================
+
 
 def RMSE(y_real, y_pred):
     mse = mean_squared_error(y_real, y_pred)
@@ -98,18 +102,19 @@ def mean_rmse(serie, points):
 # 5. GENERACIÓN DE VECINOS
 # ============================================================
 
+
 def random_neighbour(points, n):
     vecinos = []
 
     for i, point in enumerate(points):
-        # mover +1
+        # mover + 1% del tamaño de la serie
         v1 = points.copy()
-        v1[i] = point + 1
+        v1[i] = point + int(n / 100)
         vecinos.append(v1)
 
-        # mover -1
+        # mover - 1% del tamaño de la serie
         v2 = points.copy()
-        v2[i] = point - 1
+        v2[i] = point - int(n / 100)
         vecinos.append(v2)
 
     # Filtrar vecinos inválidos
@@ -131,6 +136,7 @@ def random_neighbour(points, n):
 # ============================================================
 # 6. SIMULATED ANNEALING
 # ============================================================
+
 
 def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
     startTime = time.time()
@@ -162,7 +168,7 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
             iter += 1
 
     endTime = time.time()
-    return {'rmse': rmse_best, 'points': best}, endTime - startTime
+    return {"rmse": rmse_best, "points": best}, endTime - startTime
 
 
 # ============================================================
@@ -178,9 +184,19 @@ enfriamiento_logaritmico = lambda T, T0, i, param: T0 / (1 + math.log(i))
 # 8. EJECUCIÓN DEL EXPERIMENTO
 # ============================================================
 
-def ejecutar_experimento(series, k_values, nombre, funcion_enfriamiento, p=None,
-                         T0=100, Tf=0.1, start=10, end=100, increment=10):
 
+def ejecutar_experimento(
+    series,
+    k_values,
+    nombre,
+    funcion_enfriamiento,
+    p=None,
+    T0=100,
+    Tf=0.1,
+    start=10,
+    end=100,
+    increment=10,
+):
     print(f"\n=== Ejecutando SA con enfriamiento {nombre} ===")
 
     mean_iters = []
@@ -201,7 +217,6 @@ def ejecutar_experimento(series, k_values, nombre, funcion_enfriamiento, p=None,
             current_k = k_values[TS]
 
             for L in range(start, end + 1, increment):
-
                 args = dict(
                     T0=T0,
                     funcion_enfriamiento=funcion_enfriamiento,
@@ -209,7 +224,7 @@ def ejecutar_experimento(series, k_values, nombre, funcion_enfriamiento, p=None,
                     Tf=Tf,
                     serie=current_serie,
                     k=current_k,
-                    p=p
+                    p=p,
                 )
 
                 best, time_exec = simulated_annealing(**args)
@@ -234,6 +249,7 @@ def ejecutar_experimento(series, k_values, nombre, funcion_enfriamiento, p=None,
 # 9. GRÁFICAS (GUARDAR PNG)
 # ============================================================
 
+
 def plot_SA(mean_bests, mean_iters, series, nombre):
     mean_bests = np.array(mean_bests)
     mean_iters = np.array(mean_iters)
@@ -243,7 +259,7 @@ def plot_SA(mean_bests, mean_iters, series, nombre):
 
     for TS in range(len(series)):
         plt.figure(figsize=(10, 5))
-        plt.title(f"SA - Evolución RMSE TS{TS+1} ({nombre})")
+        plt.title(f"SA - Evolución RMSE TS{TS + 1} ({nombre})")
 
         iters = mean_iters[0][TS]
 
@@ -255,7 +271,7 @@ def plot_SA(mean_bests, mean_iters, series, nombre):
             mean_series[TS] + std_series[TS],
             alpha=0.2,
             color="red",
-            label="±1 desviación"
+            label="±1 desviación",
         )
 
         plt.xlabel("L")
@@ -263,14 +279,14 @@ def plot_SA(mean_bests, mean_iters, series, nombre):
         plt.grid(True)
         plt.legend()
 
-        plt.savefig(f"SA_TS{TS+1}_evolucion_RMSE_{nombre}.png", dpi=150)
+        plt.savefig(f"SA_TS{TS + 1}_evolucion_RMSE_{nombre}.png", dpi=150)
         plt.show()
 
 
 def plot_final_SA(series, resultados, k_values, titulo):
     for TS in range(len(series)):
         plt.figure(figsize=(12, 5))
-        plt.title(f"SA - Solución final {titulo} - TS{TS+1}")
+        plt.title(f"SA - Solución final {titulo} - TS{TS + 1}")
 
         plt.plot(series[TS], label="Serie real", color="blue")
 
@@ -286,6 +302,5 @@ def plot_final_SA(series, resultados, k_values, titulo):
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f"SA_TS{TS+1}_solucion_final_{titulo}.png", dpi=150)
+        plt.savefig(f"SA_TS{TS + 1}_solucion_final_{titulo}.png", dpi=150)
         plt.show()
-
