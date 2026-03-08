@@ -10,6 +10,7 @@ from tabulate import tabulate
 # 1. CARGA DE SERIES
 # ============================================================
 
+
 files = ["../datos/TS1", "../datos/TS2", "../datos/TS3", "../datos/TS4"]
 series = [read_serie(f) for f in files]
 k_values = [9, 10, 20, 50]

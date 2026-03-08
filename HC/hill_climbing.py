@@ -10,6 +10,10 @@ import time
 # 1. REGRESIÓN LINEAL POR SEGMENTOS
 # ============================================================
 
+def read_serie(path):
+    with open(path, "r") as f:
+        contenido = f.read().replace("[", "").replace("]", "").split()
+    return [float(x) for x in contenido]
 
 def estimate_segment_coef(x, y):
     x = np.array(x).reshape(-1, 1)
@@ -232,6 +236,7 @@ def plot_HC_RMSE(series, resultados):
         plt.ylabel("RMSE")
         plt.grid(True)
         plt.legend()
+        plt.savefig(f"TS{idx+1}_mean.png", dpi=150)
         plt.show()
 
 
