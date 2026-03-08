@@ -11,7 +11,7 @@ Este proyecto ha sido creado por:
 -   i32camol -> [Lucía Cañero Moslero](https://github.com/i32camol)(i32camol@uco.es)
 
 
-# Instalacion
+# Instalación
 
 ## Entorno virtual
 
