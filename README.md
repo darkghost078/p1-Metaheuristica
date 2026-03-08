@@ -33,17 +33,44 @@ Para instalar las dependencias:
 pip install -r requirements.txt
 ```
 
+# Visualización del código
+
+La forma más cómoda de explorar el proyecto es abrir los cuadernos Jupyter, donde está todo explicado y ejecutado paso a paso:
+```bash
+RS/RS.ipynb
+HC/HC.ipynb
+SA/SA.ipynb
+```
+
+Para abrirlos:
+```bash
+jupyter notebook 
+```
+o 
+```bash
+jupyter lab 
+```
 
 # Ejecucion
 
-Para ejecutarlo nos metemos en la carpeta del algoritmo que queremos ejecutar y ejecutamos el main
-
-Por ejemplo para random search:
+Si prefieres ejecutar los algoritmos directamente sin usar Jupyter, cada carpeta contiene un main.py. 
+Por ejemplo, para ejecutar Random Search:
 
 ```bash
 cd RS
+python3 main_RS.py
 ```
 
+Para Hill Climbing:
 ```bash
-python3 main.py
+cd HC
+python3 main_HC.py
 ```
+
+Para Simulated Annealing:
+```bash
+cd HC
+python3 main_SA.py
+```
+
+Los resultados y gráficas se generarán automáticamente en cada carpeta.
