@@ -51,7 +51,7 @@ o
 jupyter lab 
 ```
 
-# Ejecucion
+# Ejecución
 
 Si prefieres ejecutar los algoritmos directamente sin usar Jupyter, cada carpeta contiene un main.py. 
 Por ejemplo, para ejecutar Random Search:
