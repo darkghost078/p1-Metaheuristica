@@ -247,7 +247,7 @@ def ejecutar_experimento(
             current_k = k_values[TS]
 
             for L in range(start, end + 1, increment):
-                args = dict(
+                best, time_exec = simulated_annealing(
                     T0=T0,
                     funcion_enfriamiento=funcion_enfriamiento,
                     L=50,
@@ -256,8 +256,6 @@ def ejecutar_experimento(
                     k=current_k,
                     p=p,
                 )
-
-                best, time_exec = simulated_annealing(**args)
 
                 iters.append(L)
                 bests.append(best.copy())
