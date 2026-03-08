@@ -20,6 +20,7 @@ k_values = [9, 10, 20, 50]
 # ============================================================
 # 2. EJECUCIÓN DE LOS TRES MÉTODOS
 # ============================================================
+"""
 iters_log, bests_log, times_log = ejecutar_experimento(
     series, k_values, "logarítmico", enfriamiento_logaritmico, p=200
 )
@@ -27,7 +28,7 @@ iters_log, bests_log, times_log = ejecutar_experimento(
 iters_geo, bests_geo, times_geo = ejecutar_experimento(
     series, k_values, "geométrico", enfriamiento_geometrico, p=0.95
 )
-
+"""
 iters_lin, bests_lin, times_lin = ejecutar_experimento(
     series, k_values, "lineal", enfriamiento_lineal, p=5
 )
@@ -37,15 +38,17 @@ iters_lin, bests_lin, times_lin = ejecutar_experimento(
 # ============================================================
 # 3. GRÁFICAS
 # ============================================================
+"""
+plot_SA(bests_geo, iters_geo, "Geométrico")
+plot_SA(bests_log, iters_log, "Logarítmico")
+"""
+plot_SA(bests_lin, iters_lin, "Lineal")
 
-#plot_SA(bests_geo, iters_geo, series, "Geométrico")
-#plot_SA(bests_lin, iters_lin, series, "Lineal")
-#plot_SA(bests_log, iters_log, series, "Logarítmico")
-
-plot_final_SA(series, bests_geo, k_values, "Geométrico")
-plot_final_SA(series, bests_lin, k_values, "Lineal")
-plot_final_SA(series, bests_log, k_values, "Logarítmico")
-
+plot_final_SA(series, bests_lin, "Lineal")
+"""
+plot_final_SA(series, bests_geo, "Geométrico")
+plot_final_SA(series, bests_log, "Logarítmico")
+"""
 
 # ============================================================
 # 4. MÉTRICAS
@@ -66,9 +69,9 @@ def calcular_metricas(resultados, tiempos):
 
     return rmse_medios, rmse_desv, tiempos_medios
 
-
-rmse_geo, desv_geo, tiempo_geo = calcular_metricas(bests_geo, times_geo)
 rmse_lin, desv_lin, tiempo_lin = calcular_metricas(bests_lin, times_lin)
+"""
+rmse_geo, desv_geo, tiempo_geo = calcular_metricas(bests_geo, times_geo)
 rmse_log, desv_log, tiempo_log = calcular_metricas(bests_log, times_log)
 
 
@@ -86,3 +89,4 @@ tabla_formateada["Tiempo medio (s)"] = tabla_formateada["Tiempo medio (s)"].map(
 
 print(tabulate(tabla_formateada, headers="keys", tablefmt="fancy_grid", showindex=False))
 
+"""

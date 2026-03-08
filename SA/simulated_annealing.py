@@ -168,13 +168,12 @@ def random_neighbour(points, n):
 # ============================================================
 
 
-def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
+def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=None):
     startTime = time.time()
 
     T = T0
     sol = randomPoints(len(serie), k)
     rmse_sol = mean_rmse(serie, sol)
-
     best = sol.copy()
     rmse_best = rmse_sol
     iter = 1
@@ -194,8 +193,12 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
                     best = sol.copy()
                     rmse_best = rmse_sol
 
-            T = funcion_enfriamiento(T, T0, iter, p)
-            iter += 1
+        T = funcion_enfriamiento(T, T0, iter, p)
+        iter += 1
+
+    if  prev_best!=None and rmse_best > prev_best["rmse"]:
+        best=prev_best["points"]
+        rmse_best=prev_best["rmse"]
 
     endTime = time.time()
     return {"rmse": rmse_best, "points": best}, endTime - startTime
@@ -233,11 +236,11 @@ def ejecutar_experimento(
     mean_bests = []
     mean_times = []
 
-    for _ in range(20):
+    curr_best=[]
+    for i in range(20):
         series_iters = []
         series_bests = []
         series_times = []
-
         for TS in range(len(series)):
             times = []
             iters = []
@@ -245,8 +248,19 @@ def ejecutar_experimento(
 
             current_serie = series[TS]
             current_k = k_values[TS]
-
-            for L in range(start, end + 1, increment):
+            
+            if(i==0):
+                best, time_exec = simulated_annealing(
+                    T0=T0,
+                    funcion_enfriamiento=funcion_enfriamiento,
+                    L=50,
+                    Tf=Tf,
+                    serie=current_serie,
+                    k=current_k,
+                    p=p
+                )
+                curr_best.append(best)
+            else:
                 best, time_exec = simulated_annealing(
                     T0=T0,
                     funcion_enfriamiento=funcion_enfriamiento,
@@ -255,15 +269,13 @@ def ejecutar_experimento(
                     serie=current_serie,
                     k=current_k,
                     p=p,
+                    prev_best=curr_best[TS]
                 )
+                curr_best[TS]=best
 
-                iters.append(L)
-                bests.append(best.copy())
-                times.append(time_exec)
-
-            series_iters.append(iters)
-            series_bests.append(bests)
-            series_times.append(times)
+            series_iters.append(i)
+            series_bests.append(best)
+            series_times.append(time_exec)
 
         mean_iters.append(series_iters)
         mean_bests.append(series_bests)
@@ -278,31 +290,19 @@ def ejecutar_experimento(
 # ============================================================
 
 
-def plot_SA(mean_bests, mean_iters, series, nombre):
+def plot_SA(mean_bests, mean_iters, nombre):
     mean_bests = np.array(mean_bests)
     mean_iters = np.array(mean_iters)
 
-    mean_series = mean_bests.mean(axis=0)
-    std_series = mean_bests.std(axis=0)
-
-    for TS in range(len(series)):
+    for TS in range(len(mean_bests[0])):
         plt.figure(figsize=(10, 5))
         plt.title(f"SA - Evolución RMSE TS{TS + 1} ({nombre})")
 
         iters = mean_iters[0][TS]
+        rmses = [rmse[TS]["rmse"] for rmse in mean_bests]
+        plt.plot(rmses, label="RMSE", color="blue",marker="o")
 
-        plt.plot(iters, mean_series[TS], label="Media RMSE", color="blue")
-
-        plt.fill_between(
-            iters,
-            mean_series[TS] - std_series[TS],
-            mean_series[TS] + std_series[TS],
-            alpha=0.2,
-            color="red",
-            label="±1 desviación",
-        )
-
-        plt.xlabel("L")
+        plt.xlabel("iters")
         plt.ylabel("RMSE")
         plt.grid(True)
         plt.legend()
@@ -311,7 +311,7 @@ def plot_SA(mean_bests, mean_iters, series, nombre):
         plt.show()
 
 
-def plot_final_SA(series, resultados, k_values, titulo):
+def plot_final_SA(series, resultados, titulo):
     for TS in range(len(series)):
         plt.figure(figsize=(12, 5))
         plt.title(f"SA - Solución final {titulo} - TS{TS + 1}")
