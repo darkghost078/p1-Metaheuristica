@@ -207,7 +207,7 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
 
 enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
 enfriamiento_geometrico = lambda T, T0, i, param: T * param
-enfriamiento_logaritmico = lambda T, T0, i, param: T0 / (1 + math.log(i))
+enfriamiento_logaritmico = lambda T, T0, i, B: T0 / (1 + B*math.log(i))
 
 
 # ============================================================
@@ -250,7 +250,7 @@ def ejecutar_experimento(
                 args = dict(
                     T0=T0,
                     funcion_enfriamiento=funcion_enfriamiento,
-                    L=L,
+                    L=50,
                     Tf=Tf,
                     serie=current_serie,
                     k=current_k,

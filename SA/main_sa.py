@@ -20,27 +20,27 @@ k_values = [9, 10, 20, 50]
 # ============================================================
 # 2. EJECUCIÓN DE LOS TRES MÉTODOS
 # ============================================================
+iters_log, bests_log, times_log = ejecutar_experimento(
+    series, k_values, "logarítmico", enfriamiento_logaritmico, p=200
+)
 
 iters_geo, bests_geo, times_geo = ejecutar_experimento(
     series, k_values, "geométrico", enfriamiento_geometrico, p=0.95
 )
 
 iters_lin, bests_lin, times_lin = ejecutar_experimento(
-    series, k_values, "lineal", enfriamiento_lineal, p=0
+    series, k_values, "lineal", enfriamiento_lineal, p=5
 )
 
-iters_log, bests_log, times_log = ejecutar_experimento(
-    series, k_values, "logarítmico", enfriamiento_logaritmico, p=0
-)
 
 
 # ============================================================
 # 3. GRÁFICAS
 # ============================================================
 
-plot_SA(bests_geo, iters_geo, series, "Geométrico")
-plot_SA(bests_lin, iters_lin, series, "Lineal")
-plot_SA(bests_log, iters_log, series, "Logarítmico")
+#plot_SA(bests_geo, iters_geo, series, "Geométrico")
+#plot_SA(bests_lin, iters_lin, series, "Lineal")
+#plot_SA(bests_log, iters_log, series, "Logarítmico")
 
 plot_final_SA(series, bests_geo, k_values, "Geométrico")
 plot_final_SA(series, bests_lin, k_values, "Lineal")
