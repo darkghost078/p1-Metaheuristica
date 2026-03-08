@@ -10,10 +10,12 @@ import time
 # 1. REGRESIÓN LINEAL POR SEGMENTOS
 # ============================================================
 
+
 def read_serie(path):
     with open(path, "r") as f:
         contenido = f.read().replace("[", "").replace("]", "").split()
     return [float(x) for x in contenido]
+
 
 def estimate_segment_coef(x, y):
     x = np.array(x).reshape(-1, 1)
@@ -136,17 +138,15 @@ def search_neighbour(serie, n):
 # ============================================================
 
 
-def hc(serie, k, max_iters=200):
+def hc(serie, k, best=None):
     startTime = time.time()
 
     solucion = randomPoints(len(serie), k)
     rmse = mean_rmse(serie, solucion)
+    mejor_vecino = []
 
-    for _ in range(max_iters):
+    while mejor_vecino is not None:
         vecinos = search_neighbour(solucion, len(serie))
-
-        if not vecinos:
-            break
 
         mejor_vecino = None
         mejor_rmse = rmse
@@ -157,11 +157,13 @@ def hc(serie, k, max_iters=200):
                 mejor_rmse = current
                 mejor_vecino = v
 
-        if mejor_vecino is None:
-            break
+        if mejor_vecino is not None:
+            solucion = mejor_vecino
+            rmse = mejor_rmse
 
-        solucion = mejor_vecino
-        rmse = mejor_rmse
+    if best is not None and best["rmse"] < rmse:
+        rmse = best["rmse"]
+        solucion = best["points"]
 
     endTime = time.time()
     return {"rmse": rmse, "points": solucion}, endTime - startTime
@@ -183,7 +185,18 @@ def ejecutar_HC(series, k_values, repeticiones=20):
 
         rep_result = []
         for rep in range(repeticiones):
-            sol, tiempo = hc(serie, k)
+            if len(rep_result) > 0:
+                sol, tiempo = hc(
+                    serie,
+                    k,
+                    {
+                        "rmse": rep_result[-1]["rmse"],
+                        "points": rep_result[-1]["points"],
+                    },
+                )
+            else:
+                sol, tiempo = hc(serie, k)
+
             rep_result.append(
                 {"rmse": sol["rmse"], "points": sol["points"], "tiempo": tiempo}
             )
@@ -236,7 +249,7 @@ def plot_HC_RMSE(series, resultados):
         plt.ylabel("RMSE")
         plt.grid(True)
         plt.legend()
-        plt.savefig(f"TS{idx+1}_mean.png", dpi=150)
+        plt.savefig(f"TS{idx + 1}_mean.png", dpi=150)
         plt.show()
 
 
