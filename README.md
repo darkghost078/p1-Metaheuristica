@@ -33,27 +33,9 @@ Para instalar las dependencias:
 pip install -r requirements.txt
 ```
 
-# Visualización del código
-
-La forma más cómoda de explorar el proyecto es abrir los cuadernos Jupyter, donde está todo explicado y ejecutado paso a paso:
-```bash
-RS/RS.ipynb
-HC/HC.ipynb
-SA/SA.ipynb
-```
-
-Para abrirlos:
-```bash
-jupyter notebook 
-```
-o 
-```bash
-jupyter lab 
-```
-
 # Ejecución
 
-Si prefieres ejecutar los algoritmos directamente sin usar Jupyter, cada carpeta contiene un main.py. 
+cada carpeta contiene un main.py que es el main de cada metaheuristica.
 Por ejemplo, para ejecutar Random Search:
 
 ```bash
@@ -69,8 +51,8 @@ python3 main_HC.py
 
 Para Simulated Annealing:
 ```bash
-cd HC
+cd SA
 python3 main_SA.py
 ```
 
-Los resultados y gráficas se generarán automáticamente en cada carpeta.
+Los resultados y gráficas se generarán automáticamente en cada carpeta o se imprimen por terminal.

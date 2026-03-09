@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 import random
 import math
 import time
+from tabulate import tabulate
 
 
 # ============================================================
@@ -206,7 +207,7 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
 
 enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
 enfriamiento_geometrico = lambda T, T0, i, param: T * param
-enfriamiento_logaritmico = lambda T, T0, i, B: T0 / (1 + B * math.log(i))
+enfriamiento_logaritmico = lambda T, T0, i, p: T0 / (1 + math.log(i))
 
 
 # ============================================================
@@ -222,63 +223,190 @@ def ejecutar_experimento(
     p=None,
     T0=100,
     Tf=0.1,
-    start=10,
-    end=100,
-    increment=10,
 ):
     print(f"\n=== Ejecutando SA con enfriamiento {nombre} ===")
 
-    mean_iters = []
     mean_bests = []
     mean_times = []
 
-    curr_best = []
     for i in range(20):
-        series_iters = []
         series_bests = []
         series_times = []
         for TS in range(len(series)):
-            times = []
-            iters = []
-            bests = []
 
             current_serie = series[TS]
             current_k = k_values[TS]
 
-            if i == 0:
-                best, time_exec = simulated_annealing(
-                    T0=T0,
-                    funcion_enfriamiento=funcion_enfriamiento,
-                    L=50,
-                    Tf=Tf,
-                    serie=current_serie,
-                    k=current_k,
-                    p=p,
-                )
-                curr_best.append(best)
-            else:
-                best, time_exec = simulated_annealing(
-                    T0=T0,
-                    funcion_enfriamiento=funcion_enfriamiento,
-                    L=50,
-                    Tf=Tf,
-                    serie=current_serie,
-                    k=current_k,
-                    p=p,
-                    prev_best=curr_best[TS],
-                )
-                curr_best[TS] = best
 
-            series_iters.append(i)
+            best, time_exec = simulated_annealing(
+                T0=T0,
+                funcion_enfriamiento=funcion_enfriamiento,
+                L=50,
+                Tf=Tf,
+                serie=current_serie,
+                k=current_k,
+                p=p)
+
             series_bests.append(best)
             series_times.append(time_exec)
+        print(f"Repetición {i + 1}/{20} completada")
 
-        mean_iters.append(series_iters)
         mean_bests.append(series_bests)
         mean_times.append(series_times)
 
     print("=== Experimento finalizado ===")
-    return mean_iters, mean_bests, mean_times
+    return mean_bests, mean_times
+
+
+def ejecutar_experimento_p(
+    series,
+    k_values,
+    nombre,
+    funcion_enfriamiento,
+    pi=1,
+    pf=200,
+    step=20,
+    T0=100,
+    Tf=0.1,
+    L=20,
+):
+    print(f"\n=== Ejecutando SA con enfriamiento {nombre} ===")
+
+    mean_bests = []
+    mean_times = []
+    p=[]
+    for i in range(20):
+        series_bests = []
+        series_times = []
+        for TS in range(len(series)):
+
+            current_serie = series[TS]
+            current_k = k_values[TS]
+            
+            bests=[]
+            times=[]
+            for p_val in range(pi,pf,step):
+                best, time_exec = simulated_annealing(
+                    T0=T0,
+                    funcion_enfriamiento=funcion_enfriamiento,
+                    L=L,
+                    Tf=Tf,
+                    serie=current_serie,
+                    k=current_k,
+                    p=p_val)
+                bests.append(best)
+                times.append(time_exec)
+                if TS==0 and i==0:
+                    p.append(p_val)
+
+            series_bests.append(bests)
+            series_times.append(times)
+        print(f"Repetición {i + 1}/{20} completada")
+
+        mean_bests.append(series_bests)
+        mean_times.append(series_times)
+
+    print("=== Experimento finalizado ===")
+    return mean_bests, mean_times,p
+
+def ejecutar_experimento_L(
+    series,
+    k_values,
+    nombre,
+    funcion_enfriamiento,
+    Li=10,
+    Lf=100,
+    p=200,
+    step=20,
+    T0=100,
+    Tf=0.1,
+    L=20,
+):
+    print(f"\n=== Ejecutando SA con enfriamiento {nombre} ===")
+
+    mean_bests = []
+    mean_times = []
+    L=[]
+    for i in range(20):
+        series_bests = []
+        series_times = []
+        for TS in range(len(series)):
+
+            current_serie = series[TS]
+            current_k = k_values[TS]
+            
+            bests=[]
+            times=[]
+            for L_val in range(Li,Lf,step):
+                best, time_exec = simulated_annealing(
+                    T0=T0,
+                    funcion_enfriamiento=funcion_enfriamiento,
+                    L=L_val,
+                    Tf=Tf,
+                    serie=current_serie,
+                    k=current_k,
+                    p=p)
+                bests.append(best)
+                times.append(time_exec)
+                if TS==0 and i==0:
+                    L.append(L_val)
+
+            series_bests.append(bests)
+            series_times.append(times)
+        print(f"Repetición {i + 1}/{20} completada")
+
+        mean_bests.append(series_bests)
+        mean_times.append(series_times)
+
+    print("=== Experimento finalizado ===")
+    return mean_bests, mean_times,L
+
+
+def SA_Lambda(series, k_values):
+    bests_log, times_log = ejecutar_experimento(
+    series, k_values, "logarítmico", enfriamiento_logaritmico, p=200
+    )
+
+    bests_geo, times_geo = ejecutar_experimento(
+    series, k_values, "geométrico", enfriamiento_geometrico
+    )
+
+    bests_lin, times_lin = ejecutar_experimento(
+    series, k_values, "lineal", enfriamiento_lineal
+    )
+    plot_SA(bests_log,times_log,"SA_mean_log")
+    plot_SA(bests_geo,times_geo,"SA_mean_geo")
+    plot_SA(bests_lin,times_lin,"SA_mean_lin")
+
+    create_Table_Lambda(bests_lin, times_lin,bests_geo, times_geo,bests_log, times_log)
+
+def SA_p(series, k_values):
+    pi = int(input("P inicial: "))
+    pf = int(input("P final: "))
+    step = int(input("Incremento: "))
+
+    bests, times,p = ejecutar_experimento_p(
+    series, k_values, "p", enfriamiento_lineal,pf=pf,pi=pi,step=step)
+    create_Table_p(bests, times,p)
+
+def SA_L(series, k_values):
+    Li = int(input("L inicial: "))
+    Lf = int(input("L final: "))
+    step = int(input("Incremento: "))
+
+    bests, times,L = ejecutar_experimento_L(
+    series, k_values, "L", enfriamiento_lineal,Lf=Lf,Li=Li,step=step)
+    create_Table_L(bests, times,L)
+
+
+
+def SA_T(series, k_values):
+    T0= float(input("T inicial: "))
+    Tf = float(input("T final: "))
+
+    bests, times = ejecutar_experimento(
+    series, k_values, "T", enfriamiento_lineal,Tf=Tf,T0=T0)
+    create_Table_T(bests, times,T0,Tf)
 
 
 # ============================================================
@@ -286,19 +414,18 @@ def ejecutar_experimento(
 # ============================================================
 
 
-def plot_SA(mean_bests, mean_iters, nombre):
+def plot_SA(mean_bests, mean_time, nombre):
     mean_bests = np.array(mean_bests)
-    mean_iters = np.array(mean_iters)
+    mean_time = np.array(mean_time)
 
     for TS in range(len(mean_bests[0])):
         plt.figure(figsize=(10, 5))
         plt.title(f"SA - Evolución RMSE TS{TS + 1} ({nombre})")
 
-        iters = mean_iters[0][TS]
         rmses = [rmse[TS]["rmse"] for rmse in mean_bests]
         plt.plot(rmses, label="RMSE", color="blue", marker="o")
 
-        plt.xlabel("iters")
+        plt.xlabel("time")
         plt.ylabel("RMSE")
         plt.grid(True)
         plt.legend()
@@ -328,3 +455,93 @@ def plot_final_SA(series, resultados, titulo):
 
         plt.savefig(f"SA_TS{TS + 1}_solucion_final_{titulo}.png", dpi=150)
         plt.show()
+
+
+def calcular_metricas(resultados, tiempos):
+    rmse_medios = []
+    rmse_desv = []
+    tiempos_medios = []
+
+    for TS in range(4):
+        rmse_final = [rep[TS][-1]["rmse"] for rep in resultados]
+        tiempo_total = [sum(rep[TS]) for rep in tiempos]
+
+        rmse_medios.append(pd.Series(rmse_final).mean())
+        rmse_desv.append(pd.Series(rmse_final).std())
+        tiempos_medios.append(pd.Series(tiempo_total).mean())
+
+    return rmse_medios, rmse_desv, tiempos_medios
+
+
+def create_Table_Lambda(bests_lin, times_lin,bests_geo, times_geo,bests_log, times_log):
+    rmse_lin, desv_lin, tiempo_lin = calcular_metricas(bests_lin, times_lin)
+    rmse_geo, desv_geo, tiempo_geo = calcular_metricas(bests_geo, times_geo)
+    rmse_log, desv_log, tiempo_log = calcular_metricas(bests_log, times_log)
+    tabla = pd.DataFrame({
+        "Método": ["Geométrico", "Lineal", "Logarítmico"],
+        "RMSE medio": [rmse_geo, rmse_lin, rmse_log],
+        "Desviación típica": [desv_geo, desv_lin, desv_log],
+        "Tiempo medio (s)": [tiempo_geo, tiempo_lin, tiempo_log]
+    })
+    tabla_formateada = tabla.copy()
+    tabla_formateada["RMSE medio"] = tabla_formateada["RMSE medio"].map(lambda x: f"{x:.6f}")
+    tabla_formateada["Desviación típica"] = tabla_formateada["Desviación típica"].map(lambda x: f"{x:.6f}")
+    tabla_formateada["Tiempo medio (s)"] = tabla_formateada["Tiempo medio (s)"].map(lambda x: f"{x:.6f}")
+    print(tabulate(tabla_formateada, headers="keys", tablefmt="fancy_grid", showindex=False))
+
+
+
+def create_Table_p(bests, times, p):
+    rows=[]
+    for p_val in range(len(p)):
+        for TS in range(len(bests[0])):
+            rmse = [bests[rep][TS][p_val]["rmse"] for rep in range(len(bests))]
+            time = [times[rep][TS][p_val] for rep in range(len(bests))]
+            rows.append({
+                "p": p[p_val],
+                "Serie": f"Serie {TS + 1}",
+                "RMSE Medio": np.mean(rmse),
+                "RMSE Desv": np.std(rmse),
+                "Tiempo Medio (s)": np.mean(time)
+            })
+
+
+    
+    tabla = pd.DataFrame(rows)
+    print(tabulate(tabla, headers="keys", tablefmt="fancy_grid", showindex=False))
+
+
+def create_Table_L(bests, times, L):
+    rows=[]
+    for L_val in range(len(L)):
+        for TS in range(len(bests[0])):
+            rmse = [bests[rep][TS][L_val]["rmse"] for rep in range(len(bests))]
+            time = [times[rep][TS][L_val] for rep in range(len(bests))]
+            rows.append({
+                "L": L[L_val],
+                "Serie": f"Serie {TS + 1}",
+                "RMSE Medio": np.mean(rmse),
+                "RMSE Desv": np.std(rmse),
+                "Tiempo Medio (s)": np.mean(time)
+            })
+
+
+    
+    tabla = pd.DataFrame(rows)
+    print(tabulate(tabla, headers="keys", tablefmt="fancy_grid", showindex=False))
+
+def create_Table_T(bests, times, T0,Tf):
+    rows=[]
+    for TS in range(len(bests[0])):
+        rmse = [bests[rep][TS]["rmse"] for rep in range(len(bests))]
+        time = [times[rep][TS] for rep in range(len(bests))]
+        rows.append({
+        "T0": T0,
+        "Tf": Tf,
+        "Serie": f"Serie {TS + 1}",
+        "RMSE Medio": np.mean(rmse),
+        "RMSE Desv": np.std(rmse),
+        "Tiempo Medio (s)": np.mean(time)
+        })
+    tabla = pd.DataFrame(rows)
+    print(tabulate(tabla, headers="keys", tablefmt="fancy_grid", showindex=False))

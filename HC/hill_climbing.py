@@ -161,7 +161,7 @@ def search_neighbour(serie, n):
 # ============================================================
 
 
-def hc(serie, k, best=None):
+def hc(serie, k):
     startTime = time.time()
 
     solucion = randomPoints(len(serie), k)
@@ -186,9 +186,6 @@ def hc(serie, k, best=None):
 
         evolution.append({"rmse":rmse,"points":solucion})
 
-    if best is not None and best["rmse"] < rmse:
-        rmse = best["rmse"]
-        solucion = best["points"]
 
     endTime = time.time()
     return {"rmse": rmse, "points": solucion}, endTime - startTime, evolution
@@ -210,17 +207,7 @@ def ejecutar_HC(series, k_values, repeticiones=20):
 
         rep_result = []
         for rep in range(repeticiones):
-            if len(rep_result) > 0:
-                sol, tiempo, _= hc(
-                    serie,
-                    k,
-                    {
-                        "rmse": rep_result[-1]["rmse"],
-                        "points": rep_result[-1]["points"],
-                    },
-                )
-            else:
-                sol, tiempo, _= hc(serie, k)
+            sol, tiempo, _= hc(serie, k)
 
             rep_result.append(
                 {"rmse": sol["rmse"], "points": sol["points"], "tiempo": tiempo}
