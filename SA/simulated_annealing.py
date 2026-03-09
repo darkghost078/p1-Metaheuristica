@@ -1,3 +1,4 @@
+from enum import Flag
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -31,6 +32,7 @@ def estimate_segment_coef(x, y):
         return (0.0, 0.0)
     model = LinearRegression().fit(x, y)
     return (model.coef_[0], model.intercept_)
+
 
 def estimate_coef(x, y):
     x = np.array(x)
@@ -73,6 +75,7 @@ def estimate_all_coef(temp, points):
 
 def estimate_point(coef, i):
     return i * coef[0] + coef[1]
+
 
 def estimate_all_points(coef, points, temp_size):
     estimated = []
@@ -134,33 +137,26 @@ def mean_rmse(serie, points):
 
 
 def random_neighbour(points, n):
-    vecinos = []
+    neighbour = []
+    flag = True
 
-    for i, point in enumerate(points):
-        # mover + 1% del tamaño de la serie
-        v1 = points.copy()
-        v1[i] = point + int(n / 50)
-        vecinos.append(v1)
+    while flag:
+        neighbour = points.copy()
+        neighbour[random.randint(0, len(neighbour) - 1)] += random.choice(
+            (-1, 1)
+        ) * int(n / 50)
 
-        # mover - 1% del tamaño de la serie
-        v2 = points.copy()
-        v2[i] = point - int(n / 50)
-        vecinos.append(v2)
+        if neighbour[0] <= 0:
+            continue
+        if neighbour[-1] >= n:
+            continue
+        if sorted(neighbour) != neighbour:
+            continue
+        if len(set(neighbour)) != len(neighbour):
+            continue
+        flag = False
 
-    # Filtrar vecinos inválidos
-    validos = []
-    for v in vecinos:
-        if v[0] <= 0:
-            continue
-        if v[-1] >= n:
-            continue
-        if sorted(v) != v:
-            continue
-        if len(set(v)) != len(v):
-            continue
-        validos.append(v)
-
-    return random.choice(validos)
+    return neighbour
 
 
 # ============================================================
@@ -196,9 +192,9 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
         T = funcion_enfriamiento(T, T0, iter, p)
         iter += 1
 
-    if  prev_best!=None and rmse_best > prev_best["rmse"]:
-        best=prev_best["points"]
-        rmse_best=prev_best["rmse"]
+    if prev_best != None and rmse_best > prev_best["rmse"]:
+        best = prev_best["points"]
+        rmse_best = prev_best["rmse"]
 
     endTime = time.time()
     return {"rmse": rmse_best, "points": best}, endTime - startTime
@@ -210,7 +206,7 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
 
 enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
 enfriamiento_geometrico = lambda T, T0, i, param: T * param
-enfriamiento_logaritmico = lambda T, T0, i, B: T0 / (1 + B*math.log(i))
+enfriamiento_logaritmico = lambda T, T0, i, B: T0 / (1 + B * math.log(i))
 
 
 # ============================================================
@@ -236,7 +232,7 @@ def ejecutar_experimento(
     mean_bests = []
     mean_times = []
 
-    curr_best=[]
+    curr_best = []
     for i in range(20):
         series_iters = []
         series_bests = []
@@ -248,8 +244,8 @@ def ejecutar_experimento(
 
             current_serie = series[TS]
             current_k = k_values[TS]
-            
-            if(i==0):
+
+            if i == 0:
                 best, time_exec = simulated_annealing(
                     T0=T0,
                     funcion_enfriamiento=funcion_enfriamiento,
@@ -257,7 +253,7 @@ def ejecutar_experimento(
                     Tf=Tf,
                     serie=current_serie,
                     k=current_k,
-                    p=p
+                    p=p,
                 )
                 curr_best.append(best)
             else:
@@ -269,9 +265,9 @@ def ejecutar_experimento(
                     serie=current_serie,
                     k=current_k,
                     p=p,
-                    prev_best=curr_best[TS]
+                    prev_best=curr_best[TS],
                 )
-                curr_best[TS]=best
+                curr_best[TS] = best
 
             series_iters.append(i)
             series_bests.append(best)
@@ -300,7 +296,7 @@ def plot_SA(mean_bests, mean_iters, nombre):
 
         iters = mean_iters[0][TS]
         rmses = [rmse[TS]["rmse"] for rmse in mean_bests]
-        plt.plot(rmses, label="RMSE", color="blue",marker="o")
+        plt.plot(rmses, label="RMSE", color="blue", marker="o")
 
         plt.xlabel("iters")
         plt.ylabel("RMSE")
