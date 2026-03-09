@@ -207,7 +207,7 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
 
 enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
 enfriamiento_geometrico = lambda T, T0, i, param: T * param
-enfriamiento_logaritmico = lambda T, T0, i, p: T0 / (1 + math.log(i))
+enfriamiento_logaritmico = lambda T, T0, i, p: T0 / (1 + p*math.log(i))
 
 
 # ============================================================
@@ -364,7 +364,7 @@ def ejecutar_experimento_L(
 
 def SA_Lambda(series, k_values):
     bests_log, times_log = ejecutar_experimento(
-    series, k_values, "logarítmico", enfriamiento_logaritmico, p=200
+    series, k_values, "logarítmico", enfriamiento_logaritmico, p=250, T0=20
     )
 
     bests_geo, times_geo = ejecutar_experimento(
