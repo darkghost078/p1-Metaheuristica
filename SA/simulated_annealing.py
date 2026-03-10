@@ -165,7 +165,7 @@ def random_neighbour(points, n):
 # ============================================================
 
 
-def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=None):
+def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k):
     startTime = time.time()
 
     T = T0
@@ -193,10 +193,6 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
         T = funcion_enfriamiento(T, T0, iter, p)
         iter += 1
 
-    if prev_best != None and rmse_best > prev_best["rmse"]:
-        best = prev_best["points"]
-        rmse_best = prev_best["rmse"]
-
     endTime = time.time()
     return {"rmse": rmse_best, "points": best}, endTime - startTime
 
@@ -205,9 +201,9 @@ def simulated_annealing(T0, funcion_enfriamiento, p, L, Tf, serie, k, prev_best=
 # 7. FUNCIONES DE ENFRIAMIENTO
 # ============================================================
 
-enfriamiento_lineal = lambda T, T0, i, B: T0 - (i * B)
-enfriamiento_geometrico = lambda T, T0, i, param: T * param
-enfriamiento_logaritmico = lambda T, T0, i, p: T0 / (1 + p*math.log(i))
+enfriamiento_lineal = lambda T, T0, i, p: T0 - (i * p)
+enfriamiento_exponencial = lambda T, T0, i, p: T0 * p**i
+enfriamiento_logaritmico = lambda T, T0, i, p: T0 / (1 + math.log(i))
 
 
 # ============================================================
@@ -363,23 +359,20 @@ def ejecutar_experimento_L(
 
 
 def SA_Lambda(series, k_values):
-    bests_geo, times_geo = ejecutar_experimento(
-    series, k_values, "geométrico", enfriamiento_geometrico, p =0.8
+    bests_exp, times_exp = ejecutar_experimento(
+    series, k_values, "exponencial", enfriamiento_exponencial, p=0.5, Tf=20
     )
 
     bests_log, times_log = ejecutar_experimento(
-    series, k_values, "logarítmico", enfriamiento_logaritmico, p=200, T0=20
+    series, k_values, "logarítmico", enfriamiento_logaritmico, Tf=20
     )
 
 
     bests_lin, times_lin = ejecutar_experimento(
-    series, k_values, "lineal", enfriamiento_lineal, p=5
+    series, k_values, "lineal", enfriamiento_lineal, p=10, Tf=20
     )
-    plot_SA(bests_log,times_log,"SA_mean_log")
-    plot_SA(bests_geo,times_geo,"SA_mean_geo")
-    plot_SA(bests_lin,times_lin,"SA_mean_lin")
 
-    create_Table_Lambda(bests_lin, times_lin,bests_geo, times_geo,bests_log, times_log)
+    create_Table_Lambda(bests_lin, times_lin,bests_exp, times_exp,bests_log, times_log)
 
 def SA_p(series, k_values):
     pi = int(input("P inicial: "))
@@ -458,37 +451,38 @@ def plot_final_SA(series, resultados, titulo):
         plt.show()
 
 
-def calcular_metricas(resultados, tiempos):
-    rmse_medios = []
-    rmse_desv = []
-    tiempos_medios = []
-
-    for TS in range(4):
-        rmse_final = [rep[TS][-1]["rmse"] for rep in resultados]
-        tiempo_total = [sum(rep[TS]) for rep in tiempos]
-
-        rmse_medios.append(pd.Series(rmse_final).mean())
-        rmse_desv.append(pd.Series(rmse_final).std())
-        tiempos_medios.append(pd.Series(tiempo_total).mean())
-
-    return rmse_medios, rmse_desv, tiempos_medios
 
 
-def create_Table_Lambda(bests_lin, times_lin,bests_geo, times_geo,bests_log, times_log):
-    rmse_lin, desv_lin, tiempo_lin = calcular_metricas(bests_lin, times_lin)
-    rmse_geo, desv_geo, tiempo_geo = calcular_metricas(bests_geo, times_geo)
-    rmse_log, desv_log, tiempo_log = calcular_metricas(bests_log, times_log)
-    tabla = pd.DataFrame({
-        "Método": ["Geométrico", "Lineal", "Logarítmico"],
-        "RMSE medio": [rmse_geo, rmse_lin, rmse_log],
-        "Desviación típica": [desv_geo, desv_lin, desv_log],
-        "Tiempo medio (s)": [tiempo_geo, tiempo_lin, tiempo_log]
-    })
-    tabla_formateada = tabla.copy()
-    tabla_formateada["RMSE medio"] = tabla_formateada["RMSE medio"].map(lambda x: f"{x:.6f}")
-    tabla_formateada["Desviación típica"] = tabla_formateada["Desviación típica"].map(lambda x: f"{x:.6f}")
-    tabla_formateada["Tiempo medio (s)"] = tabla_formateada["Tiempo medio (s)"].map(lambda x: f"{x:.6f}")
-    print(tabulate(tabla_formateada, headers="keys", tablefmt="fancy_grid", showindex=False))
+def create_Table_Lambda(bests_lin, times_lin,bests_exp, times_exp,bests_log, times_log):
+    rows=[]
+    bests=[]
+    bests.append(bests_lin)
+    bests.append(bests_exp)
+    bests.append(bests_log)
+
+    times=[]
+    times.append(times_lin)
+    times.append(times_exp)
+    times.append(times_log)
+
+    names=["Lineal","Exponencial","Logaritmico"]
+
+    for N_val in range(len(names)):
+        for TS in range(len(bests[0][0])):
+            rmse = [bests[N_val][rep][TS]["rmse"] for rep in range(len(bests[0]))]
+            time = [times[N_val][rep][TS] for rep in range(len(bests))]
+            rows.append({
+                "Enfriamiento": names[N_val],
+                "Serie": f"Serie {TS + 1}",
+                "RMSE Medio": np.mean(rmse),
+                "RMSE Desv": np.std(rmse),
+                "Tiempo Medio (s)": np.mean(time)
+            })
+
+
+
+    tabla = pd.DataFrame(rows)
+    print(tabulate(tabla, headers="keys", tablefmt="fancy_grid", showindex=False))
 
 
 
@@ -527,7 +521,7 @@ def create_Table_L(bests, times, L):
             })
 
 
-    
+
     tabla = pd.DataFrame(rows)
     print(tabulate(tabla, headers="keys", tablefmt="fancy_grid", showindex=False))
 

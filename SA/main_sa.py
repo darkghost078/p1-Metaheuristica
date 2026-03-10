@@ -1,7 +1,5 @@
 from simulated_annealing import (
-    read_serie, ejecutar_experimento,
-    enfriamiento_geometrico, enfriamiento_lineal, enfriamiento_logaritmico,
-    plot_SA, plot_final_SA, SA_Lambda, SA_p, SA_L, SA_T
+    read_serie, SA_Lambda, SA_p, SA_L, SA_T
 )
 
 import pandas as pd
