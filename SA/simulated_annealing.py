@@ -395,12 +395,14 @@ def SA_L(series, k_values):
 
 
 def SA_T(series, k_values):
-    T0= float(input("T inicial: "))
+    T0 = float(input("T inicial: "))
     Tf = float(input("T final: "))
+    p = float(input("Valor de p (enfriamiento lineal): "))
 
     bests, times = ejecutar_experimento(
-    series, k_values, "T", enfriamiento_lineal,Tf=Tf,T0=T0)
-    create_Table_T(bests, times,T0,Tf)
+        series, k_values, "T", enfriamiento_lineal, p=p, Tf=Tf, T0=T0)
+
+    create_Table_T(bests, times, T0, Tf)
 
 
 # ============================================================
