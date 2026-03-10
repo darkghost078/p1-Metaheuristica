@@ -363,16 +363,17 @@ def ejecutar_experimento_L(
 
 
 def SA_Lambda(series, k_values):
-    bests_log, times_log = ejecutar_experimento(
-    series, k_values, "logarítmico", enfriamiento_logaritmico, p=250, T0=20
+    bests_geo, times_geo = ejecutar_experimento(
+    series, k_values, "geométrico", enfriamiento_geometrico, p =0.8
     )
 
-    bests_geo, times_geo = ejecutar_experimento(
-    series, k_values, "geométrico", enfriamiento_geometrico
+    bests_log, times_log = ejecutar_experimento(
+    series, k_values, "logarítmico", enfriamiento_logaritmico, p=200, T0=20
     )
+
 
     bests_lin, times_lin = ejecutar_experimento(
-    series, k_values, "lineal", enfriamiento_lineal
+    series, k_values, "lineal", enfriamiento_lineal, p=5
     )
     plot_SA(bests_log,times_log,"SA_mean_log")
     plot_SA(bests_geo,times_geo,"SA_mean_geo")
