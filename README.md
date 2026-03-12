@@ -35,9 +35,11 @@ pip install -r requirements.txt
 
 # Ejecución
 
-cada carpeta contiene un main.py que es el main de cada metaheuristica.
-Por ejemplo, para ejecutar Random Search:
+## Opción 1: Ejecutar cada algoritmo desde Python (modo script)
 
+Cada carpeta contiene un main_*.py que es el main de cada metaheuristica.
+
+Para Random Search:
 ```bash
 cd RS
 python3 main_RS.py
@@ -55,4 +57,25 @@ cd SA
 python3 main_SA.py
 ```
 
-Los resultados y gráficas se generarán automáticamente en cada carpeta o se imprimen por terminal.
+Los resultados (tablas, métricas y gráficas) se generan automáticamente en cada carpeta o se muestran por terminal.
+
+
+## Opción 2: Ejecutar los cuadernos de jupyter
+Si prefieres ejecutarlo de forma visual, puedes usar los cuadernos Jupyter incluidos en las carpetas:
+
+- `RS/`
+- `HC/`
+- `SA/`
+
+Cada una contiene un cuaderno `.ipynb` con la implementación completa del algoritmo, sus gráficas y análisis paso a paso.
+
+Además, en la carpeta principal encontrarás un cuaderno adicional:
+
+- `Comparativa.ipynb`
+
+Este cuaderno reúne los resultados de los tres algoritmos y muestra la comparación final de métricas y segmentaciones.
+
+Para abrir los cuadernos:
+
+```bash
+jupyter notebook
