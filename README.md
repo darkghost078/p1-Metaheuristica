@@ -1,4 +1,4 @@
-# p3-Metaheuristica
+# p1-Metaheuristica
 
 ## Acknowledgements
 
@@ -33,10 +33,26 @@ Para instalar las dependencias:
 pip install -r requirements.txt
 ```
 
+# Ejecución
 
-Este cuaderno reúne los resultados de los tres algoritmos y muestra la comparación final de métricas y segmentaciones.
-
-Para abrir los cuadernos:
+cada carpeta contiene un main.py que es el main de cada metaheuristica.
+Por ejemplo, para ejecutar Random Search:
 
 ```bash
-jupyter notebook
+cd RS
+python3 main_RS.py
+```
+
+Para Hill Climbing:
+```bash
+cd HC
+python3 main_HC.py
+```
+
+Para Simulated Annealing:
+```bash
+cd SA
+python3 main_SA.py
+```
+
+Los resultados y gráficas se generarán automáticamente en cada carpeta o se imprimen por terminal.
